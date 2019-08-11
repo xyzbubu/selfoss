@@ -56,7 +56,14 @@ class Image {
         // search on base page for <link rel="shortcut icon" url...
         $html = null;
         try {
-            $html = \helpers\WebClient::request($url);
+            $http = WebClient::getHttpClient();
+            $response = $http->get($url);
+            $html = (string) $response->getBody();
+            $effectiveUrl = new Uri(WebClient::getEffectiveUrl($url, $response));
+
+            if ($response->getStatusCode() !== 200) {
+                throw new Exception(substr($html, 0, 512));
+            }
         } catch (\Exception $e) {
             \F3::get('logger')->debug('icon: failed to get html page: ', ['exception' => $e]);
         }
@@ -64,7 +71,7 @@ class Image {
         if ($html !== null) {
             $shortcutIcon = self::parseShortcutIcons($html);
             foreach ($shortcutIcons as $shortcutIcon) {
-                $shortcutIconUrl = (string) UriResolver::resolve(new Uri($url), new Uri($shortcutIcon));
+                $shortcutIconUrl = (string) UriResolver::resolve($effectiveUrl, new Uri($shortcutIcon));
 
                 $faviconAsPng = $this->loadImage($shortcutIconUrl, $width, $height);
                 if ($faviconAsPng !== null) {
@@ -102,7 +109,7 @@ class Image {
     public function loadImage($url, $extension = 'png', $width = null, $height = null) {
         // load image
         try {
-            $data = \helpers\WebClient::request($url);
+            $data = WebClient::request($url);
         } catch (\Exception $e) {
             \F3::get('logger')->error("failed to retrieve image $url,", ['exception' => $e]);
 
