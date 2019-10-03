@@ -224,21 +224,27 @@ class feed extends \spouts\spout {
             return $this->faviconUrl;
         }
 
-        $this->faviconUrl = null;
         $imageHelper = $this->getImageHelper();
+
+        // Try to use feed logo first
+        $feedLogoUrl = $this->feed->get_image_url();
+        if ($feedLogoUrl && $imageHelper->fetchFavicon($feedLogoUrl)) {
+            $this->faviconUrl = $imageHelper->getFaviconUrl();
+            \F3::get('logger')->debug('icon: using feed logo: ' . $this->faviconUrl);
+
+            return $this->faviconUrl;
+        }
+
+        // else fallback to the favicon of the associated web page
         $htmlUrl = $this->getHtmlUrl();
         if ($htmlUrl && $imageHelper->fetchFavicon($htmlUrl, true)) {
             $this->faviconUrl = $imageHelper->getFaviconUrl();
             \F3::get('logger')->debug('icon: using feed homepage favicon: ' . $this->faviconUrl);
-        } else {
-            $feedLogoUrl = $this->feed->get_image_url();
-            if ($feedLogoUrl && $imageHelper->fetchFavicon($feedLogoUrl)) {
-                $this->faviconUrl = $imageHelper->getFaviconUrl();
-                \F3::get('logger')->debug('icon: using feed logo: ' . $this->faviconUrl);
-            }
+
+            return $this->faviconUrl;
         }
 
-        return $this->faviconUrl;
+        return null;
     }
 
     /**
