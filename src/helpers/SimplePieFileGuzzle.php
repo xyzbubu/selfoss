@@ -22,6 +22,7 @@ class SimplePieFileGuzzle extends \SimplePie_File {
                 $response = $client->get($url, [
                     'allow_redirects' => [
                         'max' => $redirects,
+                        'track_redirects' => true,
                     ],
                     'headers' => [
                         'User-Agent' => $useragent,
@@ -29,9 +30,6 @@ class SimplePieFileGuzzle extends \SimplePie_File {
                     ] + $headers,
                     'timeout' => $timeout,
                     'connect_timeout' => $timeout,
-                    'allow_redirects' => [
-                        'track_redirects' => true,
-                    ],
                 ]);
 
                 $this->headers = $response->getHeaders();
@@ -51,7 +49,7 @@ class SimplePieFileGuzzle extends \SimplePie_File {
                 });
 
                 // Sequence of fetched URLs
-                $urlStack = [$url] + $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER);
+                $urlStack = array_merge([$url], $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER));
                 $this->url = $urlStack[count($urlStack) - 1];
                 $this->body = (string) $response->getBody();
                 $this->status_code = $response->getStatusCode();
