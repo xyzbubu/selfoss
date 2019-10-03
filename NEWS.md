@@ -58,6 +58,7 @@
 - Windows 8 tiles are no longer supported. ([#1137](https://github.com/SSilence/selfoss/pull/1137))
 - [Strong password hashes](https://www.php.net/manual/en/function.password-hash.php) are now supported. ([#844](https://github.com/SSilence/selfoss/pull/844), [#1137](https://github.com/SSilence/selfoss/pull/1137))
 - RSS spout now prefers the feed logo to website favicon. ([#1124](https://github.com/SSilence/selfoss/pull/1124))
+- RSS spout now tries to use favicon from the feed domain when there is no logo or home page favicon. ([#1124](https://github.com/SSilence/selfoss/pull/1124))
 
 
 ## 2.18 – 2018-03-05
