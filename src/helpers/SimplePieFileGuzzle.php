@@ -17,7 +17,7 @@ class SimplePieFileGuzzle extends \SimplePie_File {
         if (preg_match('/^https?:\/\//i', $url)) {
             $this->method = SIMPLEPIE_FILE_SOURCE_REMOTE | SIMPLEPIE_FILE_SOURCE_CURL;
 
-            $client = \helpers\WebClient::getHttpClient();
+            $client = WebClient::getHttpClient();
             try {
                 $response = $client->get($url, [
                     'allow_redirects' => [
@@ -48,9 +48,7 @@ class SimplePieFileGuzzle extends \SimplePie_File {
                     }
                 });
 
-                // Sequence of fetched URLs
-                $urlStack = array_merge([$url], $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER));
-                $this->url = $urlStack[count($urlStack) - 1];
+                $this->url = WebClient::getEffectiveUrl($url, $response);
                 $this->body = (string) $response->getBody();
                 $this->status_code = $response->getStatusCode();
             } catch (\GuzzleHttp\Exception\RequestException $e) {
