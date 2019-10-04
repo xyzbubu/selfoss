@@ -61,15 +61,17 @@ class Image {
             \F3::get('logger')->debug('icon: failed to get html page: ', ['exception' => $e]);
         }
 
-        $shortcutIcon = self::parseShortcutIcons($html);
-        foreach ($shortcutIcons as $shortcutIcon) {
-            $shortcutIconUrl = (string) UriResolver::resolve(new Uri($url), new Uri($shortcutIcon));
+        if ($html !== null) {
+            $shortcutIcon = self::parseShortcutIcons($html);
+            foreach ($shortcutIcons as $shortcutIcon) {
+                $shortcutIconUrl = (string) UriResolver::resolve(new Uri($url), new Uri($shortcutIcon));
 
-            $faviconAsPng = $this->loadImage($shortcutIconUrl, $width, $height);
-            if ($faviconAsPng !== null) {
-                $this->faviconUrl = $shortcutIconUrl;
+                $faviconAsPng = $this->loadImage($shortcutIconUrl, $width, $height);
+                if ($faviconAsPng !== null) {
+                    $this->faviconUrl = $shortcutIconUrl;
 
-                return $faviconAsPng;
+                    return $faviconAsPng;
+                }
             }
         }
 
