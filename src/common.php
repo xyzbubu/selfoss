@@ -36,16 +36,32 @@ $f3->set('ftrss_custom_data_dir', '%datadir%/fulltextrss');
 // read defaults
 $f3->config('defaults.ini');
 
-// read config, if it exists
-if (file_exists('config.ini')) {
-    $f3->config('config.ini');
+$environment = array_change_key_case($f3->get('ENV'), CASE_LOWER);
+
+$configPathEnvVar = 'selfoss_config_path';
+
+if (isset($environment[$configPathEnvVar])) {
+    $configPath = $environment[$configPathEnvVar];
+
+    // read the config chosen using environment variable
+    if (file_exists($configPath)) {
+        $f3->config($configPath);
+    } else {
+        $f3->error("Configuration file “${configPath}” requested by “${configPathEnvVar}” environment variable does not exist.");
+    }
+} else {
+    // read the usual config, if it exists
+    if (file_exists('config.ini')) {
+        $f3->config('config.ini');
+    }
 }
 
 // overwrite config with ENV variables
-$env_prefix = $f3->get('env_prefix');
-foreach ($f3->get('ENV') as $key => $value) {
-    if (strncasecmp($key, $env_prefix, strlen($env_prefix)) === 0) {
-        $f3->set(strtolower(substr($key, strlen($env_prefix))), $value);
+$env_prefix = strtolower($f3->get('env_prefix'));
+
+foreach ($environment as $key => $value) {
+    if (substr_compare($key, $env_prefix, 0, strlen($env_prefix)) === 0) {
+        $f3->set(substr($key, strlen($env_prefix)), $value);
     }
 }
 
